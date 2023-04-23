@@ -50,7 +50,7 @@ def context_from_env(args):
 # Version Bumping Logic
 def fetch_related_data(context):
     latest_release = fetch_latest_release_custom(context,context['input']['tag-prefix'])
-    context["sha"] = latest_release['target_commitish'] if latest_release else ""
+    context["sha"] = latest_release['target_commitish'] if latest_release is not None else ""
     return {
         'related-prs': fetch_related_prs(context).body,
         'commit': fetch_commit(context).body,
