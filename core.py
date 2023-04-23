@@ -60,7 +60,7 @@ def fetch_related_data(context):
     }
 
 
-def get_label_names(related_prs: List[Dict[str, Union[str, int, List[Dict[str, str]]]]]) -> set[str]:
+def get_label_names(related_prs):
     return set(label['name'] for pr in related_prs for label in pr['labels'])
 
 def bump_version_scheme(context, related_data) -> str:
@@ -74,7 +74,7 @@ def bump_version_scheme(context, related_data) -> str:
     else:
         return context.get('bump_version_scheme', '')
 
-def get_tagged_version(latest_release: Dict[str, Union[str, int]]) -> str:
+def get_tagged_version(latest_release) -> str:
     tag = latest_release.get('tag_name', '0.0.0')
     return tag.split('v')[-1]
 
