@@ -195,14 +195,14 @@ def create_new_release(context, new_release_data):
 def prepare_key_value(key, value, delimiter=None):
     delimiter = delimiter or f"delimiter_{uuid.uuid1()}"
     return f"{key}<<{delimiter}\n{value}\n{delimiter}"
-
+ 
 def set_output_parameters(context, release_data):
     out = open(context.get("github", {}).get("output")) if context.get("github", {}).get("output") else None
 
-    print(prepare_key_value("tag_name", release_data["tag_name"]), file=out)
-    print(prepare_key_value("version", release_data["name"]), file=out)
-    print(prepare_key_value("upload_url", release_data.get("upload_url", "")), file=out)
-    print(prepare_key_value("body", release_data["body"]), file=out)
+    print(prepare_key_value("tag_name", release_data["tag_name"]))
+    print(prepare_key_value("version", release_data["name"]))
+    print(prepare_key_value("upload_url", release_data.get("upload_url", "")))
+    print(prepare_key_value("body", release_data["body"]))
 
 def main(*args):
     print("Starting process...")
