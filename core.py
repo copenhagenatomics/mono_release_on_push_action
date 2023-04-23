@@ -50,7 +50,7 @@ def context_from_env(args):
 # Version Bumping Logic
 def fetch_related_data(context):
     latest_release = fetch_latest_release_custom(context,context['input']['tag-prefix'])
-    context["sha"] = latest_release['target_commitish'] if latest_release is not None else ""
+    context["sha"] = latest_release['target_commitish'] if latest_release is not None else getenv_or_throw("GITHUB_SHA")
     return {
         'related-prs': fetch_related_prs(context).body,
         'commit': fetch_commit(context).body,
@@ -145,7 +145,7 @@ def generate_new_release_data(context, related_data):
     bump_version_scheme_inst = bump_version_scheme(context, related_data)
     current_version = get_tagged_version(related_data["latest-release"])
     next_version = semver_bump(current_version, bump_version_scheme_inst)
-    base_commit = related_data.get("latest-release-commit", {}).get("sha", "") if related_data.get("latest-release-commit") is not None else "main"
+    base_commit = related_data.get("latest-release-commit", {}).get("sha", "") if related_data.get("latest-release-commit") is not None else getenv_or_throw("GITHUB_SHA")
     tag_name = context["input"]["tag-prefix"] + next_version
 
     commits_since_last_release = [
@@ -161,9 +161,11 @@ def generate_new_release_data(context, related_data):
         body += "### Commits\n\n"
         body += "\n".join(commits_since_last_release)
 
+    print(context["sha"])
+
     return {
         "tag_name": tag_name,
-        "target_commitish": context["sha"] if context["sha"] is not "" else "main",
+        "target_commitish": context["sha"] if context["sha"] is not "" else getenv_or_throw("GITHUB_SHA"),
         "name": context["input"]["release-name"]
             .replace("<RELEASE_VERSION>", next_version)
             .replace("<RELEASE_TAG>", tag_name),
