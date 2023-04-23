@@ -3,7 +3,7 @@ import requests  # noqa We are just importing this to prove the dependency insta
 
 
 def main():
-    my_input = os.environ["INPUT_MYINPUT"]
+    my_input = os.environ["INPUT_MAX_COMMITS"]
 
     my_output = f"Hello {my_input}"
 
