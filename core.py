@@ -44,7 +44,7 @@ def context_from_env(args):
             "use-github-release-notes": bool(os.getenv("INPUT_USE_GITHUB_RELEASE_NOTES")),
         },
         "bump-version-scheme": assert_valid_bump_version_scheme(os.getenv("INPUT_BUMP_VERSION_SCHEME") or input_strategy_set() or "patch"),
-        "dry-run": bool(int(os.getenv("INPUT_DRY_RUN"))) or "--dry-run" in args
+        "dry-run": os.getenv("INPUT_DRY_RUN") in ['true', 'True', '1', 'yes'] or "--dry-run" in args
     }
 
 # Version Bumping Logic
