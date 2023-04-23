@@ -50,13 +50,13 @@ def context_from_env(args):
 # Version Bumping Logic
 def fetch_related_data(context):
     latest_release = fetch_latest_release_custom(context,context['input']['tag-prefix'])
-    context["sha"] = latest_release['target_commitish']
+    context["sha"] = latest_release['target_commitish'] if latest_release else ""
     return {
         'related-prs': fetch_related_prs(context).body,
         'commit': fetch_commit(context).body,
         'latest-release': latest_release,
         'latest-release-commit': fetch_commit(context).body
-        if latest_release["tag_name"] else None
+        if latest_release and latest_release["tag_name"] else None
     }
 
 
@@ -124,7 +124,7 @@ def bump_version_scheme(context, related_data):
         return context.get('bump-version-scheme', None)
 
 def get_tagged_version(latest_release):
-    tag = latest_release.get('tag_name', '0.0.0')
+    tag = latest_release.get('tag_name', '0.0.0') if latest_release else '0.0.0'
     prefix = re.findall(r'^\D*', tag)[0]
     return tag[len(prefix):]
 
@@ -145,7 +145,7 @@ def generate_new_release_data(context, related_data):
     bump_version_scheme_inst = bump_version_scheme(context, related_data)
     current_version = get_tagged_version(related_data["latest-release"])
     next_version = semver_bump(current_version, bump_version_scheme_inst)
-    base_commit = related_data["latest-release-commit"]["sha"]
+    base_commit = related_data.get("latest-release-commit", {}).get("sha", "") if related_data.get("latest-release-commit") is not None else "main"
     tag_name = context["input"]["tag-prefix"] + next_version
 
     commits_since_last_release = [
@@ -163,7 +163,7 @@ def generate_new_release_data(context, related_data):
 
     return {
         "tag_name": tag_name,
-        "target_commitish": context["sha"],
+        "target_commitish": context["sha"] if context["sha"] is not "" else "main",
         "name": context["input"]["release-name"]
             .replace("<RELEASE_VERSION>", next_version)
             .replace("<RELEASE_TAG>", tag_name),
@@ -189,6 +189,7 @@ def create_new_release(context, new_release_data):
             json=new_release_data,
         )
 
+        print(response.text)
         response.raise_for_status()
 
 def prepare_key_value(key, value, delimiter=None):
