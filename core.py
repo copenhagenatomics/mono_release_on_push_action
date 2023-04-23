@@ -209,7 +209,8 @@ def main(*args):
     print("Received context", context)  # in GitHub actions the secrets are printed as '***'
     print("Fetching related data...")
     related_data = fetch_related_data(context)
-    if (reason := norelease_reason(context, related_data)):
+    reason = norelease_reason(context, related_data)
+    if (reason is not ''):
         print("Skipping release:", reason)
         sys.exit(0)
 
