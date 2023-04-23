@@ -194,7 +194,7 @@ def create_new_release(context, new_release_data):
 
 def prepare_key_value(key, value, delimiter=None):
     delimiter = delimiter or f"delimiter_{uuid.uuid1()}"
-    return f"{key}<<{delimiter}\n{value}\n{delimiter}"
+    return f"{key}={delimiter}\n{value}\n{delimiter}"
  
 def set_output_parameters(context, release_data):
     out = open(context.get("github", {}).get("output")) if context.get("github", {}).get("output") else None
