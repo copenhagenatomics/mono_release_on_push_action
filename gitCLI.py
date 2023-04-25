@@ -59,13 +59,24 @@ def fetch_latest_release_custom(context, *tag_prefix):
     See https://developer.github.com/v3/repos/releases/#get-the-latest-release
     """
     try:
-        response = requests.get(
-            f"{context['github']['api-url']}/repos/{context['repo']}/releases",
-            headers=headers(context)
-        )
-        response.raise_for_status()  # Raise an error for non-2xx status codes
-        releases = response.json()
-        return find_release_by_tag(releases, tag_prefix[0] if tag_prefix else "v")
+        page_number = 1
+        all_releases = []
+        while 1:
+            response = requests.get(
+                f"{context['github']['api-url']}/repos/{context['repo']}/releases",
+                params = {
+                    "per_page": 100,
+                    "page": page_number
+                },
+                headers=headers(context)
+            )
+            response.raise_for_status()  # Raise an error for non-2xx status codes
+            releases = response.json()
+            page_number+=1
+            if len(releases) <= 0:
+                break
+            all_releases.append(releases)
+        return find_release_by_tag(all_releases, tag_prefix[0] if tag_prefix else "v")
     except requests.exceptions.RequestException as e:
         if isinstance(e, requests.exceptions.HTTPError) and e.response.status_code == 404:
             print("No release found for project.")
@@ -73,12 +84,20 @@ def fetch_latest_release_custom(context, *tag_prefix):
         else:
             raise e
         
+
+def split_tag_name(tag_name):
+    match = re.search(r'\d+\.\d+\.\d+', tag_name)
+    if match:
+        return tuple(map(int, match.group().split('.')))
+    else:
+        return None
         
 def find_release_by_tag(releases, tag_str):
     """
     Finds the latest release with the given tag prefix in the list of releases.
     """
-    sorted_releases = sorted(releases, key=lambda release: release['tag_name'], reverse=True)
+    releases = [item for sub_list in releases for item in sub_list]
+    sorted_releases = sorted(releases, key=lambda release: split_tag_name(release['tag_name']), reverse=True)
     for release in sorted_releases:
         if re.search(tag_str, release['tag_name']):
             return release
