@@ -14,5 +14,6 @@ jobs:
 
       - name: Lint
         run: |
+          pip install importlib-metadata
           pip install flake8
           flake8 core.py
