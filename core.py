@@ -165,7 +165,7 @@ def generate_new_release_data(context, related_data):
 
     return {
         "tag_name": tag_name,
-        "target_commitish": context["sha"] if context["sha"] is not "" else getenv_or_throw("GITHUB_SHA"),
+        "target_commitish": context["sha"] if context["sha"] != "" else getenv_or_throw("GITHUB_SHA"),
         "name": context["input"]["release-name"]
             .replace("<RELEASE_VERSION>", next_version)
             .replace("<RELEASE_TAG>", tag_name),
@@ -213,7 +213,7 @@ def main(*args):
     print("Fetching related data...")
     related_data = fetch_related_data(context)
     reason = norelease_reason(context, related_data)
-    if (reason is not ''):
+    if (reason != ''):
         print("Skipping release:", reason)
         sys.exit(0)
 
